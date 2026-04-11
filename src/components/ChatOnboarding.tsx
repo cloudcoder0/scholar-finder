@@ -154,6 +154,7 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [profile, setProfile] = useState<Partial<SearchProfile>>({});
+  const profileRef = useRef<Partial<SearchProfile>>({});
   const [freeInputValue, setFreeInputValue] = useState("");
   const [started, setStarted] = useState(false);
   const [typingDone, setTypingDone] = useState(false);
@@ -219,13 +220,32 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
 
   const advanceStep = useCallback((stepIdx: number) => {
     if (stepIdx >= STEPS.length) {
-      finishOnboarding();
+      // Read from ref to avoid stale closure
+      const p = profileRef.current;
+      const filled: SearchProfile = {
+        gpa: p.gpa || 0,
+        state: p.state || "",
+        fieldOfStudy: p.fieldOfStudy || "",
+        educationLevel: p.educationLevel || "",
+        ethnicity: p.ethnicity || "",
+        financialNeed: p.financialNeed || "",
+        gender: p.gender || "",
+        firstGeneration: p.firstGeneration || false,
+        militaryStatus: p.militaryStatus || "",
+        disabilityStatus: p.disabilityStatus || "",
+      };
+      const paramCount = Object.values(filled).filter((v) => v && v !== "" && v !== false).length;
+      addSystemMessage(
+        `$ scan --execute\n\n[READY] Profile loaded with ${paramCount} parameters.\nInitiating deep scan across government agencies, nonprofits, tech companies, and conferences...\n\n> EXECUTING...`
+      );
+      setCurrentStep(STEPS.length);
+      setTimeout(() => onComplete(filled), 1500);
       return;
     }
     setCurrentStep(stepIdx);
     const step = STEPS[stepIdx];
     addSystemMessage(step.prompt, step.options, step.freeInput, step.inputType, step.inputPlaceholder);
-  }, []);
+  }, [onComplete]);
 
   // When typing completes on the intro message, advance to first step
   useEffect(() => {
@@ -253,6 +273,7 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
     }
 
     setProfile(updated);
+    profileRef.current = updated;
     setFreeInputValue("");
 
     setTimeout(() => advanceStep(stepIdx + 1), 400);
@@ -269,34 +290,11 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
     handleSelection(freeInputValue.trim(), currentStep);
   };
 
-  const finishOnboarding = () => {
-    const filled: SearchProfile = {
-      gpa: profile.gpa || 0,
-      state: profile.state || "",
-      fieldOfStudy: profile.fieldOfStudy || "",
-      educationLevel: profile.educationLevel || "",
-      ethnicity: profile.ethnicity || "",
-      financialNeed: profile.financialNeed || "",
-      gender: profile.gender || "",
-      firstGeneration: profile.firstGeneration || false,
-      militaryStatus: profile.militaryStatus || "",
-      disabilityStatus: profile.disabilityStatus || "",
-    };
-
-    const paramCount = Object.values(filled).filter((v) => v && v !== "" && v !== false).length;
-
-    addSystemMessage(
-      `$ scan --execute\n\n[READY] Profile loaded with ${paramCount} parameters.\nInitiating deep scan across government agencies, nonprofits, tech companies, and conferences...\n\n> EXECUTING...`
-    );
-
-    setCurrentStep(STEPS.length);
-    setTimeout(() => onComplete(filled), 1500);
-  };
-
   const handleReset = () => {
     setMessages([]);
     setCurrentStep(-1);
     setProfile({});
+    profileRef.current = {};
     setStarted(false);
     setFreeInputValue("");
     setTypingDone(false);
