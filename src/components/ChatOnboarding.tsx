@@ -273,6 +273,7 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
     }
 
     setProfile(updated);
+    profileRef.current = updated;
     setFreeInputValue("");
 
     setTimeout(() => advanceStep(stepIdx + 1), 400);
