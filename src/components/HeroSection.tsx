@@ -1,22 +1,55 @@
 import { motion } from "framer-motion";
-import { Shield, Search, CheckCircle, Sparkles } from "lucide-react";
+import { Shield, Terminal, Lock, Cpu } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const features = [
-  { icon: Sparkles, text: "AI-powered real-time scholarship discovery" },
-  { icon: Search, text: "Sources beyond the usual scholarship sites" },
-  { icon: Shield, text: "Expired scholarships automatically filtered" },
-  { icon: CheckCircle, text: "Matched to your GPA & state" },
+  { icon: Terminal, text: "AI-powered real-time discovery" },
+  { icon: Cpu, text: "Sources beyond mainstream databases" },
+  { icon: Lock, text: "Expired entries auto-purged" },
+  { icon: Shield, text: "Matched to your GPA & state" },
 ];
+
+function MatrixColumn({ delay, left }: { delay: number; left: string }) {
+  const chars = "01アイウエオカキクケコサシスセソ";
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      let idx = 0;
+      const interval = setInterval(() => {
+        setText((prev) => prev + chars[Math.floor(Math.random() * chars.length)] + "\n");
+        idx++;
+        if (idx > 20) clearInterval(interval);
+      }, 100);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  return (
+    <div
+      className="absolute top-0 text-xs leading-tight opacity-20 whitespace-pre"
+      style={{ left, color: "hsl(120 100% 50%)", fontFamily: "var(--font-body)" }}
+    >
+      {text}
+    </div>
+  );
+}
 
 export default function HeroSection() {
   return (
-    <section
-      className="relative overflow-hidden py-24 md:py-32"
-      style={{ background: "var(--gradient-hero)" }}
-    >
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 h-64 w-64 rounded-full bg-accent blur-[120px]" />
-        <div className="absolute bottom-10 right-20 h-48 w-48 rounded-full bg-accent blur-[100px]" />
+    <section className="relative overflow-hidden bg-background py-24 md:py-32 border-b border-border">
+      {/* Matrix rain background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <MatrixColumn key={i} delay={i * 300} left={`${i * 8.5}%`} />
+        ))}
+      </div>
+
+      {/* Glow orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-1/4 h-48 w-48 rounded-full opacity-10" style={{ background: "hsl(120 100% 50%)", filter: "blur(100px)" }} />
+        <div className="absolute bottom-10 right-1/4 h-32 w-32 rounded-full opacity-10" style={{ background: "hsl(160 100% 45%)", filter: "blur(80px)" }} />
       </div>
 
       <div className="container relative mx-auto px-6 text-center">
@@ -25,20 +58,22 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <span className="mb-4 inline-block rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5 font-display text-sm font-medium text-accent">
-            Stop searching. Start finding.
+          <span className="mb-4 inline-block rounded border border-primary/30 bg-primary/5 px-4 py-1.5 font-display text-sm text-primary text-glow">
+            &gt; initiating_scan...
           </span>
 
-          <h1 className="mx-auto mt-6 max-w-3xl font-display text-4xl font-bold leading-tight tracking-tight text-primary-foreground md:text-6xl">
-            Hidden Scholarships
+          <h1 className="mx-auto mt-6 max-w-3xl font-display text-3xl font-bold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl text-glow flicker">
+            HIDDEN SCHOLARSHIPS
             <br />
-            <span className="text-accent">You Won't Find Anywhere Else</span>
+            <span className="text-primary">UNCOVERED_</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/70">
-            We scan government agencies, nonprofits, tech companies, and
-            conferences to surface scholarships the big sites miss — for
-            engineering, CS, and cybersecurity students.
+          <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground font-body">
+            // Scanning government agencies, nonprofits, tech companies,
+            <br />
+            // and conferences for scholarships the mainstream sites miss.
+            <br />
+            // Targets: engineering | CS | cybersecurity
           </p>
         </motion.div>
 
@@ -51,10 +86,10 @@ export default function HeroSection() {
           {features.map((f) => (
             <div
               key={f.text}
-              className="flex items-center gap-2 text-sm text-primary-foreground/60"
+              className="flex items-center gap-2 text-xs text-muted-foreground"
             >
-              <f.icon className="h-4 w-4 text-accent" />
-              <span>{f.text}</span>
+              <f.icon className="h-3.5 w-3.5 text-primary" />
+              <span>[{f.text}]</span>
             </div>
           ))}
         </motion.div>
