@@ -39,42 +39,44 @@ export default function SearchForm({ onSearch, isSearching }: SearchFormProps) {
       >
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-border bg-card p-6 md:p-8"
-          style={{ boxShadow: "var(--shadow-elevated)" }}
+          className="rounded border border-border bg-card p-6 md:p-8 terminal-border"
         >
-          <h2 className="mb-6 text-center font-display text-xl font-semibold text-card-foreground">
-            Find Your Scholarships
+          <h2 className="mb-1 font-display text-sm text-primary text-glow">
+            &gt; run scholarship_scan.sh
           </h2>
+          <p className="mb-6 text-xs text-muted-foreground">
+            // Enter parameters to begin scan
+          </p>
 
           <div className="flex flex-col gap-4 md:flex-row">
             <div className="flex-1">
-              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">
-                GPA (0.0 – 4.0)
+              <label className="mb-1.5 block text-xs font-display text-muted-foreground">
+                --gpa
               </label>
               <Input
                 type="number"
                 step="0.1"
                 min="0"
                 max="4.0"
-                placeholder="e.g. 3.5"
+                placeholder="3.5"
                 value={gpa}
                 onChange={(e) => setGpa(e.target.value)}
-                className="h-12 text-base"
+                className="h-11 bg-background border-border font-mono text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-primary/30"
                 required
               />
             </div>
 
             <div className="flex-1">
-              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">
-                State
+              <label className="mb-1.5 block text-xs font-display text-muted-foreground">
+                --state
               </label>
               <Select value={state} onValueChange={setState} required>
-                <SelectTrigger className="h-12 text-base">
-                  <SelectValue placeholder="Select your state" />
+                <SelectTrigger className="h-11 bg-background border-border font-mono text-foreground">
+                  <SelectValue placeholder="SELECT_STATE" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-card border-border">
                   {US_STATES.map((s) => (
-                    <SelectItem key={s} value={s}>
+                    <SelectItem key={s} value={s} className="font-mono text-xs">
                       {s}
                     </SelectItem>
                   ))}
@@ -86,10 +88,10 @@ export default function SearchForm({ onSearch, isSearching }: SearchFormProps) {
               <Button
                 type="submit"
                 disabled={isSearching || !gpa || !state}
-                className="h-12 w-full gap-2 bg-accent px-8 font-display font-semibold text-accent-foreground hover:bg-accent/90 md:w-auto"
+                className="h-11 w-full gap-2 bg-primary px-8 font-display text-primary-foreground hover:bg-primary/80 md:w-auto border-0"
               >
                 <Search className="h-4 w-4" />
-                {isSearching ? "Scanning…" : "Search"}
+                {isSearching ? "SCANNING..." : "EXECUTE"}
               </Button>
             </div>
           </div>

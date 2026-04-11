@@ -18,25 +18,22 @@ export default function Index() {
     setIsSearching(true);
     setSearchGpa(gpa);
     setSearchState(state);
-    setResults(null); // Clear previous results to show scanning animation
+    setResults(null);
 
-    // 1. Get seed results immediately
     const seedResults = findScholarships(gpa, state);
 
-    // 2. Fire AI search in parallel
     try {
       const { data, error } = await supabase.functions.invoke("search-scholarships", {
         body: { gpa, state },
       });
 
-      // Show seed results first
       setResults(seedResults);
 
       if (error) {
         console.error("Edge function error:", error);
         toast({
-          title: "Live search unavailable",
-          description: "Showing curated results. AI search will retry next time.",
+          title: "> ERROR: live_search unavailable",
+          description: "Showing curated results. Retry on next scan.",
           variant: "destructive",
         });
       } else if (data?.scholarships?.length > 0) {
@@ -56,8 +53,8 @@ export default function Index() {
 
         if (data.scholarships.length > 0) {
           toast({
-            title: `🔍 Found ${data.scholarships.length} additional scholarships`,
-            description: "AI-powered search discovered new opportunities.",
+            title: `> ${data.scholarships.length} new targets discovered`,
+            description: `Source: ${data.source === "cache" ? "cached_db" : "live_ai_scan"}`,
           });
         }
       }
@@ -78,9 +75,9 @@ export default function Index() {
         <div className="container mx-auto flex items-center justify-end px-6 py-5">
           <a
             href="#search"
-            className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent/20"
+            className="rounded border border-primary/30 bg-primary/5 px-4 py-2 text-xs font-display text-primary transition-colors hover:bg-primary/10 text-glow"
           >
-            Find Scholarships
+            &gt; FIND_SCHOLARSHIPS
           </a>
         </div>
       </header>
@@ -96,8 +93,10 @@ export default function Index() {
         )}
       </div>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        <p>Surfacing hidden scholarships with legal compliance.</p>
+      <footer className="border-t border-border py-8 text-center">
+        <p className="text-xs text-muted-foreground font-display">
+          // surfacing hidden scholarships with legal compliance
+        </p>
       </footer>
     </div>
   );

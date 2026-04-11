@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Terminal } from "lucide-react";
 import type { Scholarship } from "@/data/scholarships";
 import ScholarshipCard from "./ScholarshipCard";
 
@@ -18,25 +19,26 @@ export default function ResultsSection({ results, gpa, state }: ResultsSectionPr
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <h2 className="font-display text-2xl font-bold text-foreground">
-              {results.length} Scholarship{results.length !== 1 ? "s" : ""} Found
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <Terminal className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg text-primary text-glow">
+              &gt; {results.length} result{results.length !== 1 ? "s" : ""} found_
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              For GPA {gpa.toFixed(1)} in {state}
-            </p>
           </div>
+          <p className="text-xs text-muted-foreground">
+            // query: GPA={gpa.toFixed(1)} STATE="{state}" | filter --no-expired
+          </p>
         </div>
 
         {results.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card p-12 text-center">
-            <p className="font-display text-lg text-muted-foreground">
-              No matches found. Try adjusting your GPA or state.
+          <div className="rounded border border-border bg-card p-12 text-center terminal-border">
+            <p className="font-display text-sm text-muted-foreground">
+              &gt; ERROR: No matches found. Adjust parameters and retry.
             </p>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             {results.map((s, i) => (
               <ScholarshipCard key={s.id} scholarship={s} index={i} />
             ))}

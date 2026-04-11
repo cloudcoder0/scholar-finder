@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Radar, Building2, Heart, Cpu, CalendarCheck } from "lucide-react";
+import { motion } from "framer-motion";
+import { Building2, Heart, Cpu, CalendarCheck, Terminal } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const scanSteps = [
-  { icon: Building2, label: "Scanning government agencies…", delay: 0 },
-  { icon: Heart, label: "Scanning nonprofits & foundations…", delay: 2000 },
-  { icon: Cpu, label: "Scanning tech companies…", delay: 4000 },
-  { icon: CalendarCheck, label: "Scanning conferences & conventions…", delay: 6000 },
-  { icon: Radar, label: "Filtering expired scholarships…", delay: 8000 },
+  { icon: Building2, label: "scanning government_agencies...", delay: 0 },
+  { icon: Heart, label: "scanning nonprofits_&_foundations...", delay: 2000 },
+  { icon: Cpu, label: "scanning tech_companies...", delay: 4000 },
+  { icon: CalendarCheck, label: "scanning conferences_&_conventions...", delay: 6000 },
+  { icon: Terminal, label: "filtering expired_entries...", delay: 8000 },
 ];
 
 export default function ScanningIndicator() {
@@ -24,85 +24,84 @@ export default function ScanningIndicator() {
   return (
     <section className="container mx-auto px-6 py-12">
       <div className="mx-auto max-w-2xl">
-        {/* Progress steps */}
-        <div className="mb-8 space-y-3">
-          {scanSteps.map((step, i) => {
-            const Icon = step.icon;
-            const isActive = i === activeStep;
-            const isDone = i < activeStep;
+        {/* Terminal-style progress */}
+        <div className="mb-8 rounded border border-border bg-card p-5 terminal-border">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border">
+            <div className="h-2.5 w-2.5 rounded-full bg-destructive" />
+            <div className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(45 100% 50%)" }} />
+            <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+            <span className="ml-2 text-xs text-muted-foreground font-display">scholarship_scanner.sh</span>
+          </div>
 
-            return (
-              <motion.div
-                key={step.label}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: i <= activeStep ? 1 : 0.3, x: 0 }}
-                transition={{ delay: i * 0.15, duration: 0.3 }}
-                className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
-                  isActive
-                    ? "bg-accent/10 border border-accent/30"
-                    : isDone
-                    ? "bg-muted/50"
-                    : "bg-transparent"
-                }`}
-              >
-                <Icon
-                  className={`h-5 w-5 shrink-0 ${
-                    isActive ? "text-accent animate-pulse" : isDone ? "text-muted-foreground" : "text-muted-foreground/40"
-                  }`}
-                />
-                <span
-                  className={`text-sm font-medium ${
-                    isActive ? "text-foreground" : isDone ? "text-muted-foreground" : "text-muted-foreground/40"
-                  }`}
+          <div className="space-y-2">
+            {scanSteps.map((step, i) => {
+              const Icon = step.icon;
+              const isActive = i === activeStep;
+              const isDone = i < activeStep;
+
+              return (
+                <motion.div
+                  key={step.label}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: i <= activeStep ? 1 : 0.2, x: 0 }}
+                  transition={{ delay: i * 0.1, duration: 0.3 }}
+                  className="flex items-center gap-3 font-mono text-xs"
                 >
-                  {step.label}
-                </span>
-                {isDone && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="ml-auto text-xs text-muted-foreground"
-                  >
-                    ✓
-                  </motion.span>
-                )}
-                {isActive && (
-                  <motion.div
-                    className="ml-auto h-1.5 w-1.5 rounded-full bg-accent"
-                    animate={{ scale: [1, 1.5, 1] }}
-                    transition={{ repeat: Infinity, duration: 1 }}
+                  <span className="text-muted-foreground w-3">$</span>
+                  <Icon
+                    className={`h-3.5 w-3.5 shrink-0 ${
+                      isActive ? "text-primary animate-pulse" : isDone ? "text-primary/50" : "text-muted-foreground/30"
+                    }`}
                   />
-                )}
-              </motion.div>
-            );
-          })}
+                  <span
+                    className={
+                      isActive ? "text-primary text-glow" : isDone ? "text-muted-foreground" : "text-muted-foreground/30"
+                    }
+                  >
+                    {step.label}
+                  </span>
+                  {isDone && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="text-accent text-[10px]"
+                    >
+                      [OK]
+                    </motion.span>
+                  )}
+                  {isActive && (
+                    <span className="cursor-blink text-primary text-[10px]" />
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Skeleton cards */}
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {[0, 1, 2, 3].map((i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 0.5, y: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
-              className="rounded-xl border border-border bg-card p-6"
-              style={{ boxShadow: "var(--shadow-card)" }}
+              className="rounded border border-border bg-card p-5"
             >
               <div className="mb-3 flex items-start justify-between">
                 <div className="space-y-2 flex-1">
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-3/4 bg-muted" />
+                  <Skeleton className="h-3 w-1/2 bg-muted" />
                 </div>
-                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-5 w-16 rounded bg-muted" />
               </div>
               <div className="mb-4 space-y-2">
-                <Skeleton className="h-3 w-full" />
-                <Skeleton className="h-3 w-5/6" />
+                <Skeleton className="h-2.5 w-full bg-muted" />
+                <Skeleton className="h-2.5 w-5/6 bg-muted" />
               </div>
               <div className="flex justify-between">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-9 w-20 rounded-lg" />
+                <Skeleton className="h-3 w-20 bg-muted" />
+                <Skeleton className="h-7 w-16 rounded bg-muted" />
               </div>
             </motion.div>
           ))}
