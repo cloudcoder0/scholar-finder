@@ -220,13 +220,32 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
 
   const advanceStep = useCallback((stepIdx: number) => {
     if (stepIdx >= STEPS.length) {
-      finishOnboarding();
+      // Read from ref to avoid stale closure
+      const p = profileRef.current;
+      const filled: SearchProfile = {
+        gpa: p.gpa || 0,
+        state: p.state || "",
+        fieldOfStudy: p.fieldOfStudy || "",
+        educationLevel: p.educationLevel || "",
+        ethnicity: p.ethnicity || "",
+        financialNeed: p.financialNeed || "",
+        gender: p.gender || "",
+        firstGeneration: p.firstGeneration || false,
+        militaryStatus: p.militaryStatus || "",
+        disabilityStatus: p.disabilityStatus || "",
+      };
+      const paramCount = Object.values(filled).filter((v) => v && v !== "" && v !== false).length;
+      addSystemMessage(
+        `$ scan --execute\n\n[READY] Profile loaded with ${paramCount} parameters.\nInitiating deep scan across government agencies, nonprofits, tech companies, and conferences...\n\n> EXECUTING...`
+      );
+      setCurrentStep(STEPS.length);
+      setTimeout(() => onComplete(filled), 1500);
       return;
     }
     setCurrentStep(stepIdx);
     const step = STEPS[stepIdx];
     addSystemMessage(step.prompt, step.options, step.freeInput, step.inputType, step.inputPlaceholder);
-  }, []);
+  }, [onComplete]);
 
   // When typing completes on the intro message, advance to first step
   useEffect(() => {
