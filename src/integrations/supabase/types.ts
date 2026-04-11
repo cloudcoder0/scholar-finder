@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cached_scholarships: {
+        Row: {
+          amount: string
+          apply_url: string
+          created_at: string
+          deadline: string
+          description: string
+          expires_at: string
+          fields: string
+          id: string
+          min_gpa: number
+          name: string
+          organization: string
+          search_gpa: number
+          search_state: string
+          source_category: string
+          source_url: string
+          states: string
+        }
+        Insert: {
+          amount: string
+          apply_url: string
+          created_at?: string
+          deadline: string
+          description: string
+          expires_at?: string
+          fields: string
+          id?: string
+          min_gpa: number
+          name: string
+          organization: string
+          search_gpa: number
+          search_state: string
+          source_category: string
+          source_url: string
+          states?: string
+        }
+        Update: {
+          amount?: string
+          apply_url?: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          expires_at?: string
+          fields?: string
+          id?: string
+          min_gpa?: number
+          name?: string
+          organization?: string
+          search_gpa?: number
+          search_state?: string
+          source_category?: string
+          source_url?: string
+          states?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
