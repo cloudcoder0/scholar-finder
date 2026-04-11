@@ -72,8 +72,6 @@ export default function HeroSection() {
             // Scanning government agencies, nonprofits, tech companies,
             <br />
             // and conferences for scholarships the mainstream sites miss.
-            <br />
-            // Targets: engineering | CS | cybersecurity
           </p>
         </motion.div>
 
