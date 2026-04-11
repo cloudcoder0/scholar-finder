@@ -290,34 +290,11 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
     handleSelection(freeInputValue.trim(), currentStep);
   };
 
-  const finishOnboarding = () => {
-    const filled: SearchProfile = {
-      gpa: profile.gpa || 0,
-      state: profile.state || "",
-      fieldOfStudy: profile.fieldOfStudy || "",
-      educationLevel: profile.educationLevel || "",
-      ethnicity: profile.ethnicity || "",
-      financialNeed: profile.financialNeed || "",
-      gender: profile.gender || "",
-      firstGeneration: profile.firstGeneration || false,
-      militaryStatus: profile.militaryStatus || "",
-      disabilityStatus: profile.disabilityStatus || "",
-    };
-
-    const paramCount = Object.values(filled).filter((v) => v && v !== "" && v !== false).length;
-
-    addSystemMessage(
-      `$ scan --execute\n\n[READY] Profile loaded with ${paramCount} parameters.\nInitiating deep scan across government agencies, nonprofits, tech companies, and conferences...\n\n> EXECUTING...`
-    );
-
-    setCurrentStep(STEPS.length);
-    setTimeout(() => onComplete(filled), 1500);
-  };
-
   const handleReset = () => {
     setMessages([]);
     setCurrentStep(-1);
     setProfile({});
+    profileRef.current = {};
     setStarted(false);
     setFreeInputValue("");
     setTypingDone(false);
