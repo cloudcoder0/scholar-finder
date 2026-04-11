@@ -1,36 +1,75 @@
 import { useState, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
 import HeroSection from "@/components/HeroSection";
 import SearchForm from "@/components/SearchForm";
 import ResultsSection from "@/components/ResultsSection";
 import { findScholarships, type Scholarship } from "@/data/scholarships";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Index() {
   const [results, setResults] = useState<Scholarship[] | null>(null);
   const [searchGpa, setSearchGpa] = useState(0);
   const [searchState, setSearchState] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const { toast } = useToast();
 
-  const handleSearch = useCallback((gpa: number, state: string) => {
+  const handleSearch = useCallback(async (gpa: number, state: string) => {
     setIsSearching(true);
     setSearchGpa(gpa);
     setSearchState(state);
 
-    // Simulate scraper delay for demo
-    setTimeout(() => {
-      const matches = findScholarships(gpa, state);
-      setResults(matches);
-      setIsSearching(false);
+    // 1. Get seed results immediately
+    const seedResults = findScholarships(gpa, state);
+    setResults(seedResults);
 
-      // Scroll to results
+    // 2. Fire AI search in parallel
+    try {
+      const { data, error } = await supabase.functions.invoke("search-scholarships", {
+        body: { gpa, state },
+      });
+
+      if (error) {
+        console.error("Edge function error:", error);
+        toast({
+          title: "Live search unavailable",
+          description: "Showing curated results. AI search will retry next time.",
+          variant: "destructive",
+        });
+      } else if (data?.scholarships?.length > 0) {
+        // Merge AI results with seed, deduplicate by name similarity
+        const aiScholarships: Scholarship[] = data.scholarships.map((s: Scholarship) => ({
+          ...s,
+          source: "ai" as const,
+        }));
+
+        setResults((prev) => {
+          const existing = prev || [];
+          const existingNames = new Set(existing.map((s) => s.name.toLowerCase()));
+          const newOnes = aiScholarships.filter(
+            (s) => !existingNames.has(s.name.toLowerCase())
+          );
+          return [...existing, ...newOnes];
+        });
+
+        if (data.scholarships.length > 0) {
+          toast({
+            title: `🔍 Found ${data.scholarships.length} additional scholarships`,
+            description: "AI-powered search discovered new opportunities.",
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setIsSearching(false);
       setTimeout(() => {
         document.getElementById("results")?.scrollIntoView({ behavior: "smooth" });
       }, 100);
-    }, 1200);
-  }, []);
+    }
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
       <header className="absolute top-0 z-20 w-full">
         <div className="container mx-auto flex items-center justify-between px-6 py-5">
           <span className="font-display text-lg font-bold text-primary-foreground">
@@ -52,11 +91,8 @@ export default function Index() {
         <ResultsSection results={results} gpa={searchGpa} state={searchState} />
       </div>
 
-      {/* Footer */}
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        <p>
-          ScholarScan — Surfacing hidden scholarships with legal compliance.
-        </p>
+        <p>ScholarScan — Surfacing hidden scholarships with legal compliance.</p>
       </footer>
     </div>
   );
