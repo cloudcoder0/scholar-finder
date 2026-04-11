@@ -154,6 +154,7 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [profile, setProfile] = useState<Partial<SearchProfile>>({});
+  const profileRef = useRef<Partial<SearchProfile>>({});
   const [freeInputValue, setFreeInputValue] = useState("");
   const [started, setStarted] = useState(false);
   const [typingDone, setTypingDone] = useState(false);
