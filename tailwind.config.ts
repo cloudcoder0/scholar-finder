@@ -13,8 +13,9 @@ export default {
       },
     },
     fontFamily: {
-      display: ['Space Grotesk', 'sans-serif'],
-      body: ['Inter', 'sans-serif'],
+      display: ['Share Tech Mono', 'monospace'],
+      body: ['JetBrains Mono', 'monospace'],
+      mono: ['JetBrains Mono', 'monospace'],
     },
     extend: {
       colors: {
