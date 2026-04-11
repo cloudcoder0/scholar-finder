@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,6 +28,49 @@ serve(async (req) => {
       );
     }
 
+    // Init Supabase with service role for cache read/write
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // 1. Check cache first — look for non-expired results matching this GPA range + state
+    const gpaLow = Math.floor(gpa * 10) / 10; // round down to nearest 0.1
+    const { data: cached } = await supabase
+      .from("cached_scholarships")
+      .select("*")
+      .eq("search_state", state)
+      .lte("search_gpa", gpa)
+      .gte("expires_at", new Date().toISOString());
+
+    if (cached && cached.length > 0) {
+      console.log(`Cache hit: ${cached.length} scholarships for GPA ${gpa} in ${state}`);
+      const scholarships = cached
+        .filter((s) => gpa >= s.min_gpa)
+        .map((s, i) => ({
+          id: `cached-${s.id}`,
+          name: s.name,
+          organization: s.organization,
+          amount: s.amount,
+          deadline: s.deadline,
+          sourceCategory: s.source_category,
+          description: s.description,
+          eligibility: {
+            minGPA: s.min_gpa,
+            states: s.states === "all" ? "all" : s.states.split(",").map((st: string) => st.trim()),
+            fields: s.fields.split(",").map((f: string) => f.trim()),
+          },
+          applyUrl: s.apply_url,
+          robotsCompliant: true,
+          sourceUrl: s.source_url,
+        }));
+
+      return new Response(
+        JSON.stringify({ scholarships, source: "cache" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 2. No cache hit — query AI
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -83,7 +127,7 @@ For each scholarship, you MUST verify:
                         properties: {
                           name: { type: "string", description: "Scholarship name" },
                           organization: { type: "string", description: "Sponsoring organization" },
-                          amount: { type: "string", description: "Award amount e.g. '$10,000' or 'Full tuition'" },
+                          amount: { type: "string", description: "Award amount" },
                           deadline: { type: "string", description: "Application deadline as YYYY-MM-DD or 'Rolling'" },
                           sourceCategory: {
                             type: "string",
@@ -91,14 +135,8 @@ For each scholarship, you MUST verify:
                           },
                           description: { type: "string", description: "2-3 sentence description" },
                           minGPA: { type: "number", description: "Minimum GPA requirement" },
-                          states: {
-                            type: "string",
-                            description: "Comma-separated list of eligible states, or 'all' for nationwide",
-                          },
-                          fields: {
-                            type: "string",
-                            description: "Comma-separated eligible fields e.g. 'computer science, cybersecurity, engineering'",
-                          },
+                          states: { type: "string", description: "Comma-separated eligible states or 'all'" },
+                          fields: { type: "string", description: "Comma-separated eligible fields" },
                           applyUrl: { type: "string", description: "URL to apply" },
                           sourceUrl: { type: "string", description: "Source website URL" },
                         },
@@ -144,8 +182,6 @@ For each scholarship, you MUST verify:
     }
 
     const data = await response.json();
-
-    // Extract tool call arguments
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) {
       console.error("No tool call in response:", JSON.stringify(data));
@@ -156,9 +192,8 @@ For each scholarship, you MUST verify:
     }
 
     const parsed = JSON.parse(toolCall.function.arguments);
-
-    // Transform and filter by expiry
     const now = new Date();
+
     const scholarships = (parsed.scholarships || [])
       .map((s: any, i: number) => ({
         id: `ai-${Date.now()}-${i}`,
@@ -174,7 +209,7 @@ For each scholarship, you MUST verify:
           fields: s.fields.split(",").map((f: string) => f.trim()),
         },
         applyUrl: s.applyUrl,
-        robotsCompliant: true, // AI doesn't scrape, it searches
+        robotsCompliant: true,
         sourceUrl: s.sourceUrl,
       }))
       .filter((s: any) => {
@@ -182,6 +217,40 @@ For each scholarship, you MUST verify:
         const deadlineDate = new Date(s.deadline);
         return deadlineDate >= now;
       });
+
+    // 3. Cache results in the background
+    const cacheRows = scholarships.map((s: any) => ({
+      name: s.name,
+      organization: s.organization,
+      amount: s.amount,
+      deadline: s.deadline,
+      source_category: s.sourceCategory,
+      description: s.description,
+      min_gpa: s.eligibility.minGPA,
+      states: Array.isArray(s.eligibility.states) ? s.eligibility.states.join(", ") : "all",
+      fields: s.eligibility.fields.join(", "),
+      apply_url: s.applyUrl,
+      source_url: s.sourceUrl,
+      search_gpa: gpa,
+      search_state: state,
+    }));
+
+    if (cacheRows.length > 0) {
+      const { error: cacheError } = await supabase
+        .from("cached_scholarships")
+        .insert(cacheRows);
+      if (cacheError) {
+        console.error("Cache write error:", cacheError.message);
+      } else {
+        console.log(`Cached ${cacheRows.length} scholarships for GPA ${gpa} in ${state}`);
+      }
+    }
+
+    // 4. Clean up expired cache entries
+    await supabase
+      .from("cached_scholarships")
+      .delete()
+      .lt("expires_at", new Date().toISOString());
 
     console.log(`Found ${scholarships.length} AI scholarships for GPA ${gpa} in ${state}`);
 
