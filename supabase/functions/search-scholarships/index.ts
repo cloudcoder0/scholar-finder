@@ -97,10 +97,10 @@ serve(async (req) => {
     const systemPrompt = `You are a scholarship research assistant. You find HIDDEN scholarships — scholarships NOT commonly listed on sites like Bold.org, Niche.com, ScholarshipOwl, Fastweb, or Scholarships.com.
 
 Prioritize scholarships from:
-- Government agencies (NSF, DoD, DARPA, CISA, NIST, state agencies)
-- Nonprofits and professional organizations (IEEE, ACM, ISC2, EFF, AFCEA)
-- Tech companies (defense contractors, cybersecurity firms, hardware companies)
-- Conferences and conventions (DEF CON, RSA, SXSW, Grace Hopper)
+- Government agencies (federal, state, and local)
+- Nonprofits and professional organizations
+- Companies offering scholarships in the student's field
+- Conferences and conventions relevant to their area of study
 - State-specific programs that are hard to discover
 - Identity-based organizations (UNCF, AISES, SHPE, SWE, NSBE, etc.)
 
@@ -109,11 +109,11 @@ Today's date is ${today}. Only include scholarships whose deadlines have NOT pas
 For each scholarship, you MUST verify:
 - It is a real, verifiable scholarship (no fabricated entries)
 - The source URL is a real website
-- The scholarship is relevant to the student's profile`;
+- The scholarship is relevant to the student's profile and field of study`;
 
     const userPrompt = `Find 8-12 scholarships for a student with a ${gpa.toFixed(1)} GPA in ${state}.${profileContext}
 
-Include both national scholarships and ${state}-specific opportunities. Focus on lesser-known sources. Return ONLY scholarships with deadlines after ${today}.`;
+Include both national scholarships and ${state}-specific opportunities. Focus on lesser-known sources relevant to the student's profile. Return ONLY scholarships with deadlines after ${today}.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
