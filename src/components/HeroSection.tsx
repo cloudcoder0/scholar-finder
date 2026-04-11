@@ -6,7 +6,7 @@ const features = [
   { icon: Terminal, text: "AI-powered real-time discovery" },
   { icon: Cpu, text: "Sources beyond mainstream databases" },
   { icon: Lock, text: "Expired entries auto-purged" },
-  { icon: Shield, text: "Matched to your GPA & state" },
+  { icon: Shield, text: "Matched to your full profile" },
 ];
 
 function MatrixColumn({ delay, left }: { delay: number; left: string }) {
