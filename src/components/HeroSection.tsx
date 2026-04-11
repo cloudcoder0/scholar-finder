@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { Shield, Search, CheckCircle } from "lucide-react";
+import { Shield, Search, CheckCircle, Sparkles } from "lucide-react";
 
 const features = [
+  { icon: Sparkles, text: "AI-powered real-time scholarship discovery" },
   { icon: Search, text: "Sources beyond the usual scholarship sites" },
-  { icon: Shield, text: "robots.txt compliance on every source" },
+  { icon: Shield, text: "Expired scholarships automatically filtered" },
   { icon: CheckCircle, text: "Matched to your GPA & state" },
 ];
 
