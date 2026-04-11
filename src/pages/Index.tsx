@@ -75,10 +75,7 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <header className="absolute top-0 z-20 w-full">
-        <div className="container mx-auto flex items-center justify-between px-6 py-5">
-          <span className="font-display text-lg font-bold text-primary-foreground">
-            Hidden Scholarship Finder
-          </span>
+        <div className="container mx-auto flex items-center justify-end px-6 py-5">
           <a
             href="#search"
             className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent/20"
