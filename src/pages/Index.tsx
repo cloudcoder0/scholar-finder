@@ -4,7 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import SearchForm from "@/components/SearchForm";
 import ResultsSection from "@/components/ResultsSection";
 import ScanningIndicator from "@/components/ScanningIndicator";
-import { findScholarships, type Scholarship } from "@/data/scholarships";
+import { findScholarships, type Scholarship, type SearchProfile } from "@/data/scholarships";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Index() {
@@ -14,17 +14,17 @@ export default function Index() {
   const [isSearching, setIsSearching] = useState(false);
   const { toast } = useToast();
 
-  const handleSearch = useCallback(async (gpa: number, state: string) => {
+  const handleSearch = useCallback(async (profile: SearchProfile) => {
     setIsSearching(true);
-    setSearchGpa(gpa);
-    setSearchState(state);
+    setSearchGpa(profile.gpa);
+    setSearchState(profile.state);
     setResults(null);
 
-    const seedResults = findScholarships(gpa, state);
+    const seedResults = findScholarships(profile.gpa, profile.state, profile);
 
     try {
       const { data, error } = await supabase.functions.invoke("search-scholarships", {
-        body: { gpa, state },
+        body: profile,
       });
 
       setResults(seedResults);
