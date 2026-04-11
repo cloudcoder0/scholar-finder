@@ -1,5 +1,18 @@
 export type SourceCategory = "government" | "nonprofit" | "tech" | "conference" | "organization";
 
+export interface SearchProfile {
+  gpa: number;
+  state: string;
+  fieldOfStudy: string;
+  educationLevel: string;
+  ethnicity: string;
+  financialNeed: string;
+  gender: string;
+  firstGeneration: boolean;
+  militaryStatus: string;
+  disabilityStatus: string;
+}
+
 export interface Scholarship {
   id: string;
   name: string;
@@ -36,6 +49,82 @@ export const US_STATES = [
   "Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota",
   "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia",
   "Wisconsin","Wyoming","District of Columbia",
+];
+
+export const FIELDS_OF_STUDY = [
+  "Computer Science",
+  "Cybersecurity",
+  "Engineering",
+  "Information Technology",
+  "Data Science",
+  "Mathematics",
+  "Physics",
+  "Biology",
+  "Chemistry",
+  "Business",
+  "Nursing / Healthcare",
+  "Education",
+  "Liberal Arts",
+  "Other STEM",
+  "Other",
+];
+
+export const EDUCATION_LEVELS = [
+  "High School Senior",
+  "Undergraduate Freshman",
+  "Undergraduate Sophomore",
+  "Undergraduate Junior",
+  "Undergraduate Senior",
+  "Graduate (Masters)",
+  "Graduate (PhD)",
+  "Community College",
+];
+
+export const ETHNICITIES = [
+  "Prefer not to say",
+  "African American / Black",
+  "Asian / Pacific Islander",
+  "Hispanic / Latino",
+  "Native American / Alaska Native",
+  "White / Caucasian",
+  "Middle Eastern / North African",
+  "Multiracial",
+  "Other",
+];
+
+export const FINANCIAL_NEED_LEVELS = [
+  "Not applicable",
+  "Under $30,000",
+  "$30,000 - $60,000",
+  "$60,000 - $90,000",
+  "$90,000 - $120,000",
+  "Over $120,000",
+];
+
+export const GENDERS = [
+  "Prefer not to say",
+  "Male",
+  "Female",
+  "Non-binary",
+  "Other",
+];
+
+export const MILITARY_STATUSES = [
+  "None",
+  "Active Duty",
+  "Veteran",
+  "Reserve / National Guard",
+  "Military Dependent / Spouse",
+];
+
+export const DISABILITY_STATUSES = [
+  "None",
+  "Physical Disability",
+  "Learning Disability",
+  "Chronic Illness",
+  "Visual / Hearing Impairment",
+  "Other",
+  "Prefer not to say",
 ];
 
 export const scholarships: Scholarship[] = [
@@ -371,7 +460,7 @@ export const scholarships: Scholarship[] = [
     amount: "Up to $15,000",
     deadline: "Rolling",
     sourceCategory: "government",
-    description: "State-funded grant for Colorado students in advanced industries including engineering and technology. Paired with industry sponsors for real-world project experience.",
+    description: "Colorado state grant supporting students in advanced industries including IT, cybersecurity, and engineering. Funds can be used for research projects and capstone work.",
     eligibility: { minGPA: 2.8, states: ["Colorado"], fields: ["engineering", "computer science", "cybersecurity"] },
     applyUrl: "https://oedit.colorado.gov/advanced-industries",
     robotsCompliant: true,
@@ -379,140 +468,72 @@ export const scholarships: Scholarship[] = [
   },
   {
     id: "27",
-    name: "SXSW Student Innovation Award",
-    organization: "South by Southwest",
-    amount: "$5,000 + conference pass",
-    deadline: "November",
-    sourceCategory: "conference",
-    description: "Recognizes student-led tech innovations presented at SXSW Interactive. Winners receive cash awards, full conference access, and exposure to venture capital and tech media.",
-    eligibility: { minGPA: 2.5, states: "all", fields: ["computer science", "engineering"] },
-    applyUrl: "https://www.sxsw.com/awards/",
-    robotsCompliant: true,
-    sourceUrl: "https://www.sxsw.com/",
-  },
-  {
-    id: "28",
-    name: "SANS Institute CyberStart Scholarship",
-    organization: "SANS Institute",
-    amount: "Full SANS training course ($8,000+ value)",
-    deadline: "May",
-    sourceCategory: "nonprofit",
-    description: "Provides free access to elite SANS cybersecurity training courses for top-performing students in their CyberStart program. SANS certifications are industry gold standard.",
-    eligibility: { minGPA: 2.5, states: "all", fields: ["cybersecurity"] },
-    applyUrl: "https://www.sans.org/cyberstart/",
-    robotsCompliant: true,
-    sourceUrl: "https://www.sans.org/",
-  },
-  {
-    id: "29",
-    name: "Georgia Tech Research Institute STEM Fellowship",
-    organization: "Georgia Tech Research Institute",
-    amount: "$8,000 + research placement",
-    deadline: "February",
-    sourceCategory: "organization",
-    description: "Competitive fellowship for Georgia students interested in defense-related engineering and CS research. Fellows work on GTRI projects in electronic systems, cybersecurity, and aerospace.",
-    eligibility: { minGPA: 3.2, states: ["Georgia"], fields: ["engineering", "computer science", "cybersecurity"] },
-    applyUrl: "https://www.gtri.gatech.edu/careers",
-    robotsCompliant: true,
-    sourceUrl: "https://www.gtri.gatech.edu/",
-  },
-  {
-    id: "30",
-    name: "CrowdStrike Foundation NextGen Scholarship",
-    organization: "CrowdStrike Foundation",
-    amount: "$10,000",
-    deadline: "June",
-    sourceCategory: "tech",
-    description: "Supports the next generation of cybersecurity professionals. CrowdStrike, a leader in endpoint security, funds students who demonstrate passion for protecting digital infrastructure.",
-    eligibility: { minGPA: 3.0, states: "all", fields: ["cybersecurity", "computer science"] },
-    applyUrl: "https://www.crowdstrike.org/scholarships",
-    robotsCompliant: true,
-    sourceUrl: "https://www.crowdstrike.org/",
-  },
-  {
-    id: "31",
-    name: "Washington State Opportunity Scholarship (WSOS)",
-    organization: "Washington State Opportunity Scholarship Board",
-    amount: "Up to $22,500 over 5 years",
-    deadline: "February",
-    sourceCategory: "government",
-    description: "State-funded scholarship for low/middle-income Washington students pursuing high-demand STEM degrees. Funded by a public-private partnership including Microsoft and Boeing.",
-    eligibility: { minGPA: 2.75, states: ["Washington"], fields: ["engineering", "computer science", "cybersecurity"] },
-    applyUrl: "https://waopportunityscholarship.org/",
-    robotsCompliant: true,
-    sourceUrl: "https://waopportunityscholarship.org/",
-  },
-  {
-    id: "32",
-    name: "RSA Conference Security Scholar Award",
+    name: "RSA Conference Security Scholar",
     organization: "RSA Conference",
-    amount: "$5,000 + full conference pass",
-    deadline: "January",
+    amount: "Full pass + $3,000 stipend",
+    deadline: "October",
     sourceCategory: "conference",
-    description: "Awards cybersecurity students with conference access to the world's premier security event. Includes dedicated networking sessions with CISOs and security executives from Fortune 500 companies.",
-    eligibility: { minGPA: 3.0, states: "all", fields: ["cybersecurity"] },
+    description: "Provides full access to one of the world's premier cybersecurity conferences. Scholars attend sessions, network with CISOs and security researchers, and gain exposure to cutting-edge security technologies.",
+    eligibility: { minGPA: 2.8, states: "all", fields: ["cybersecurity", "computer science"] },
     applyUrl: "https://www.rsaconference.com/programs/security-scholar",
     robotsCompliant: true,
     sourceUrl: "https://www.rsaconference.com/",
   },
   {
-    id: "33",
-    name: "Illinois Space Grant Consortium Undergraduate Scholarship",
-    organization: "NASA / Illinois Space Grant Consortium",
-    amount: "$2,000 - $5,000",
-    deadline: "March",
-    sourceCategory: "government",
-    description: "NASA-funded award for Illinois students in engineering and CS. Recipients gain access to NASA research networks and are encouraged to pursue aerospace-related career paths.",
-    eligibility: { minGPA: 3.0, states: ["Illinois"], fields: ["engineering", "computer science"] },
-    applyUrl: "https://www.ae.illinois.edu/isgc/",
-    robotsCompliant: true,
-    sourceUrl: "https://www.ae.illinois.edu/isgc/",
-  },
-  {
-    id: "34",
-    name: "MITRE Cybersecurity Internship & Scholarship",
-    organization: "MITRE Corporation",
-    amount: "$7,500 + internship",
-    deadline: "November",
-    sourceCategory: "nonprofit",
-    description: "Combines scholarship funding with a paid internship at MITRE, a federally funded R&D center. Students work on real cyber threat intelligence and vulnerability research projects.",
-    eligibility: { minGPA: 3.2, states: "all", fields: ["cybersecurity", "computer science", "engineering"] },
-    applyUrl: "https://www.mitre.org/careers/student-programs",
-    robotsCompliant: true,
-    sourceUrl: "https://www.mitre.org/",
-  },
-  {
-    id: "35",
-    name: "Ohio Cyber Range Alliance Student Grant",
-    organization: "Ohio Cyber Range Alliance",
-    amount: "$3,000",
+    id: "28",
+    name: "Michigan Engineering Scholarship",
+    organization: "Michigan Economic Development Corporation",
+    amount: "$5,000 - $10,000",
     deadline: "April",
     sourceCategory: "government",
-    description: "Supports Ohio students studying cybersecurity through hands-on training on state-funded cyber ranges. Grant includes access to simulation environments and capture-the-flag competitions.",
-    eligibility: { minGPA: 2.5, states: ["Ohio"], fields: ["cybersecurity"] },
-    applyUrl: "https://www.ohiocyberrange.org/",
+    description: "State-funded scholarship for Michigan residents pursuing engineering and technology degrees at Michigan institutions. Aimed at retaining STEM talent within the state.",
+    eligibility: { minGPA: 3.0, states: ["Michigan"], fields: ["engineering", "computer science"] },
+    applyUrl: "https://www.michigan.gov/leo/bureaus-agencies/wd",
     robotsCompliant: true,
-    sourceUrl: "https://www.ohiocyberrange.org/",
+    sourceUrl: "https://www.michigan.gov/",
+  },
+  {
+    id: "29",
+    name: "SANS Institute CyberStart Scholarship",
+    organization: "SANS Institute",
+    amount: "Up to $10,000 in training",
+    deadline: "March",
+    sourceCategory: "organization",
+    description: "Provides cybersecurity training and certification scholarships. SANS is the world's leading cybersecurity training organization, and recipients gain access to elite courses valued at thousands of dollars.",
+    eligibility: { minGPA: 2.5, states: "all", fields: ["cybersecurity"] },
+    applyUrl: "https://www.sans.org/scholarship/",
+    robotsCompliant: true,
+    sourceUrl: "https://www.sans.org/",
+  },
+  {
+    id: "30",
+    name: "Washington State Opportunity Scholarship (WSOS)",
+    organization: "Washington State Opportunity Scholarship",
+    amount: "Up to $22,500 total",
+    deadline: "February",
+    sourceCategory: "government",
+    description: "For Washington state residents pursuing STEM or healthcare degrees. Funded by the state and matching private contributions from companies like Microsoft and Boeing.",
+    eligibility: { minGPA: 2.75, states: ["Washington"], fields: ["engineering", "computer science", "cybersecurity"] },
+    applyUrl: "https://waopportunityscholarship.org/",
+    robotsCompliant: true,
+    sourceUrl: "https://waopportunityscholarship.org/",
   },
 ];
 
-export function isExpired(deadline: string): boolean {
+function isExpired(deadline: string): boolean {
   if (deadline === "Rolling" || deadline.startsWith("Varies")) return false;
-  // For month-only deadlines like "December", check if that month has passed this year
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const monthIdx = months.indexOf(deadline);
   if (monthIdx !== -1) {
     const now = new Date();
-    // If the month hasn't come yet this year, it's not expired
     return now.getMonth() > monthIdx;
   }
-  // Try ISO date
   const d = new Date(deadline);
   if (!isNaN(d.getTime())) return d < new Date();
   return false;
 }
 
-export function findScholarships(gpa: number, state: string): Scholarship[] {
+export function findScholarships(gpa: number, state: string, profile?: Partial<SearchProfile>): Scholarship[] {
   return scholarships
     .filter((s) => {
       if (isExpired(s.deadline)) return false;
