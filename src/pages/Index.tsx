@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import HeroSection from "@/components/HeroSection";
-import SearchForm from "@/components/SearchForm";
+import ChatOnboarding from "@/components/ChatOnboarding";
 import ResultsSection from "@/components/ResultsSection";
 import ScanningIndicator from "@/components/ScanningIndicator";
 import { findScholarships, type Scholarship, type SearchProfile } from "@/data/scholarships";
@@ -83,7 +83,7 @@ export default function Index() {
       </header>
 
       <HeroSection />
-      <SearchForm onSearch={handleSearch} isSearching={isSearching} />
+      <ChatOnboarding onComplete={handleSearch} isSearching={isSearching} />
 
       <div id="results">
         {isSearching && results === null ? (
