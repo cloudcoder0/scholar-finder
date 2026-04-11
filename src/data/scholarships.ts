@@ -16,6 +16,7 @@ export interface Scholarship {
   applyUrl: string;
   robotsCompliant: boolean;
   sourceUrl: string;
+  source?: "seed" | "ai";
 }
 
 export const SOURCE_LABELS: Record<SourceCategory, string> = {
@@ -495,10 +496,29 @@ export const scholarships: Scholarship[] = [
   },
 ];
 
+export function isExpired(deadline: string): boolean {
+  if (deadline === "Rolling" || deadline.startsWith("Varies")) return false;
+  // For month-only deadlines like "December", check if that month has passed this year
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const monthIdx = months.indexOf(deadline);
+  if (monthIdx !== -1) {
+    const now = new Date();
+    // If the month hasn't come yet this year, it's not expired
+    return now.getMonth() > monthIdx;
+  }
+  // Try ISO date
+  const d = new Date(deadline);
+  if (!isNaN(d.getTime())) return d < new Date();
+  return false;
+}
+
 export function findScholarships(gpa: number, state: string): Scholarship[] {
-  return scholarships.filter((s) => {
-    if (gpa < s.eligibility.minGPA) return false;
-    if (s.eligibility.states === "all") return true;
-    return s.eligibility.states.includes(state);
-  });
+  return scholarships
+    .filter((s) => {
+      if (isExpired(s.deadline)) return false;
+      if (gpa < s.eligibility.minGPA) return false;
+      if (s.eligibility.states === "all") return true;
+      return s.eligibility.states.includes(state);
+    })
+    .map((s) => ({ ...s, source: "seed" as const }));
 }
