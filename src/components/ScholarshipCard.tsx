@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ExternalLink, ShieldCheck, DollarSign, Calendar } from "lucide-react";
+import { ExternalLink, ShieldCheck, DollarSign, Calendar, Sparkles, Database } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Scholarship, SourceCategory } from "@/data/scholarships";
 import { SOURCE_LABELS } from "@/data/scholarships";
@@ -36,9 +36,16 @@ export default function ScholarshipCard({
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">{s.organization}</p>
         </div>
-        <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${categoryClass[s.sourceCategory]}`}>
-          {SOURCE_LABELS[s.sourceCategory]}
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <span className={`rounded-full px-3 py-1 text-xs font-medium ${categoryClass[s.sourceCategory]}`}>
+            {SOURCE_LABELS[s.sourceCategory]}
+          </span>
+          {s.source === "ai" && (
+            <span className="flex items-center gap-1 rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
+              <Sparkles className="h-3 w-3" /> Live Result
+            </span>
+          )}
+        </div>
       </div>
 
       <p className="mb-4 text-sm leading-relaxed text-muted-foreground line-clamp-3">
