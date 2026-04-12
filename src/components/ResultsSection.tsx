@@ -27,7 +27,7 @@ export default function ResultsSection({ results, gpa, state }: ResultsSectionPr
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            // query: GPA={gpa.toFixed(1)} STATE="{state}" | filter --no-expired
+            // query: GPA={gpa.toFixed(1)} STATE="{state}" | filter --no-expired | sort --match-score desc
           </p>
         </div>
 

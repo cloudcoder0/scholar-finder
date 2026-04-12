@@ -30,6 +30,7 @@ export interface Scholarship {
   robotsCompliant: boolean;
   sourceUrl: string;
   source?: "seed" | "ai";
+  matchScore?: number;
 }
 
 export const SOURCE_LABELS: Record<SourceCategory, string> = {
@@ -533,7 +534,130 @@ function isExpired(deadline: string): boolean {
   return false;
 }
 
+export function calculateMatchScore(scholarship: Scholarship, profile: SearchProfile): number {
+  let score = 0;
+  let totalWeight = 0;
+
+  // GPA match (weight: 25) — how far above the minimum
+  totalWeight += 25;
+  if (profile.gpa >= scholarship.eligibility.minGPA) {
+    const gpaBuffer = profile.gpa - scholarship.eligibility.minGPA;
+    // Perfect if 0.5+ above min, scales linearly
+    score += 25 * Math.min(1, 0.5 + gpaBuffer / 1.0);
+  }
+
+  // State match (weight: 20)
+  totalWeight += 20;
+  if (scholarship.eligibility.states === "all") {
+    score += 20; // universal = full match
+  } else if (scholarship.eligibility.states.includes(profile.state)) {
+    score += 20;
+  }
+
+  // Field of study match (weight: 30)
+  totalWeight += 30;
+  if (scholarship.eligibility.fields.length > 0 && profile.fieldOfStudy) {
+    const userField = profile.fieldOfStudy.toLowerCase();
+    const matched = scholarship.eligibility.fields.some(
+      (f) => userField.includes(f.toLowerCase()) || f.toLowerCase().includes(userField)
+    );
+    if (matched) {
+      score += 30;
+    } else {
+      // Partial credit for adjacent STEM fields
+      const stemFields = ["computer science", "engineering", "cybersecurity", "data science", "information technology", "mathematics", "other stem"];
+      const isUserStem = stemFields.some((sf) => userField.includes(sf));
+      const isScholarshipStem = scholarship.eligibility.fields.some((f) =>
+        stemFields.includes(f.toLowerCase())
+      );
+      if (isUserStem && isScholarshipStem) {
+        score += 15; // partial STEM adjacency
+      }
+    }
+  }
+
+  // Description keyword matching for demographic factors (weight: 25)
+  totalWeight += 25;
+  const desc = scholarship.description.toLowerCase();
+  const name = scholarship.name.toLowerCase();
+  let demographicHits = 0;
+  let demographicChecks = 0;
+
+  // Gender relevance
+  if (profile.gender && profile.gender !== "Prefer not to say") {
+    demographicChecks++;
+    if (profile.gender === "Female" && (desc.includes("women") || desc.includes("female") || name.includes("women"))) {
+      demographicHits++;
+    } else if (!desc.includes("women") && !desc.includes("female") && !name.includes("women")) {
+      demographicHits += 0.7; // neutral scholarship = decent match
+    }
+  }
+
+  // First generation
+  if (profile.firstGeneration) {
+    demographicChecks++;
+    if (desc.includes("first-gen") || desc.includes("first generation")) {
+      demographicHits++;
+    } else {
+      demographicHits += 0.5;
+    }
+  }
+
+  // Financial need
+  if (profile.financialNeed && profile.financialNeed !== "Not applicable") {
+    demographicChecks++;
+    const lowIncome = profile.financialNeed === "Under $30,000" || profile.financialNeed === "$30,000 - $60,000";
+    if (lowIncome && (desc.includes("need-based") || desc.includes("financial need") || desc.includes("low-income") || desc.includes("underrepresented"))) {
+      demographicHits++;
+    } else {
+      demographicHits += 0.5;
+    }
+  }
+
+  // Military status
+  if (profile.militaryStatus && profile.militaryStatus !== "None") {
+    demographicChecks++;
+    if (desc.includes("military") || desc.includes("veteran") || desc.includes("defense") || name.includes("dod")) {
+      demographicHits++;
+    } else {
+      demographicHits += 0.3;
+    }
+  }
+
+  // Ethnicity / underrepresented
+  if (profile.ethnicity && profile.ethnicity !== "Prefer not to say" && profile.ethnicity !== "White / Caucasian") {
+    demographicChecks++;
+    if (desc.includes("underrepresented") || desc.includes("minority") || desc.includes("diversity")) {
+      demographicHits++;
+    } else {
+      demographicHits += 0.5;
+    }
+  }
+
+  if (demographicChecks > 0) {
+    score += 25 * (demographicHits / demographicChecks);
+  } else {
+    score += 18; // no demographic data = neutral score
+  }
+
+  return Math.round((score / totalWeight) * 100);
+}
+
 export function findScholarships(gpa: number, state: string, profile?: Partial<SearchProfile>): Scholarship[] {
+  const fullProfile: SearchProfile = {
+    gpa,
+    state,
+    fieldOfStudy: "",
+    educationLevel: "",
+    ethnicity: "",
+    financialNeed: "",
+    gender: "",
+    firstGeneration: false,
+    militaryStatus: "",
+    disabilityStatus: "",
+    ...profile,
+  };
+
   return scholarships
     .filter((s) => {
       if (isExpired(s.deadline)) return false;
@@ -541,5 +665,10 @@ export function findScholarships(gpa: number, state: string, profile?: Partial<S
       if (s.eligibility.states === "all") return true;
       return s.eligibility.states.includes(state);
     })
-    .map((s) => ({ ...s, source: "seed" as const }));
+    .map((s) => ({
+      ...s,
+      source: "seed" as const,
+      matchScore: calculateMatchScore(s, fullProfile),
+    }))
+    .sort((a, b) => b.matchScore - a.matchScore);
 }
