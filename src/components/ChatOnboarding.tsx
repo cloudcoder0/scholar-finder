@@ -101,7 +101,7 @@ const STEPS: OnboardingStep[] = [
   },
 ];
 
-const TYPING_SPEED = 18; // ms per character
+const TYPING_SPEED = 8; // ms per character
 
 function TypewriterText({
   text,
@@ -239,7 +239,7 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
         `$ scan --execute\n\n[READY] Profile loaded with ${paramCount} parameters.\nInitiating deep scan across government agencies, nonprofits, tech companies, and conferences...\n\n> EXECUTING...`
       );
       setCurrentStep(STEPS.length);
-      setTimeout(() => onComplete(filled), 1500);
+      setTimeout(() => onComplete(filled), 600);
       return;
     }
     setCurrentStep(stepIdx);
@@ -250,7 +250,7 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
   // When typing completes on the intro message, advance to first step
   useEffect(() => {
     if (typingDone && started && currentStep === -1) {
-      setTimeout(() => advanceStep(0), 400);
+      setTimeout(() => advanceStep(0), 200);
     }
   }, [typingDone, started, currentStep, advanceStep]);
 
@@ -276,12 +276,12 @@ export default function ChatOnboarding({ onComplete, isSearching }: ChatOnboardi
     profileRef.current = updated;
     setFreeInputValue("");
 
-    setTimeout(() => advanceStep(stepIdx + 1), 400);
+    setTimeout(() => advanceStep(stepIdx + 1), 200);
   };
 
   const handleSkip = (stepIdx: number) => {
     addUserMessage("--skip");
-    setTimeout(() => advanceStep(stepIdx + 1), 300);
+    setTimeout(() => advanceStep(stepIdx + 1), 150);
   };
 
   const handleFreeInputSubmit = (e: React.FormEvent) => {
