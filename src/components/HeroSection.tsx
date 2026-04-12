@@ -9,18 +9,31 @@ const features = [
   { icon: Shield, text: "Matched to your full profile" },
 ];
 
+const CYBER_KEYWORDS = [
+  "SCANNING...", "0x4F2A", "PORT 443", "SSH://", "ENCRYPT", "DECRYPT",
+  "FIREWALL", "PROXY", "TCP/IP", "DNS", "HTTPS", "SSL/TLS",
+  "PACKET", "TRACE", "BUFFER", "HASH", "AUTH", "TOKEN",
+  "PING", "CHMOD", "SUDO", "ROOT", "KERNEL", "SHELL",
+  "EXPLOIT", "PATCH", "CIPHER", "RSA-256", "AES-128", "MD5",
+  "SOCKS5", "VPN", "NODE", "GATEWAY", "PAYLOAD", "INJECT",
+  "GRANT", "REVOKE", "SCHEMA", "QUERY", "INDEX", "PARSE",
+  "0xFF", "0xDEAD", "ACK", "SYN", "FIN", "NOP",
+];
+
 function MatrixColumn({ delay, left }: { delay: number; left: string }) {
-  const chars = "01アイウエオカキクケコサシスセソ";
-  const [text, setText] = useState("");
+  const [lines, setLines] = useState<string[]>([]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       let idx = 0;
       const interval = setInterval(() => {
-        setText((prev) => prev + chars[Math.floor(Math.random() * chars.length)] + "\n");
+        setLines((prev) => [
+          ...prev,
+          CYBER_KEYWORDS[Math.floor(Math.random() * CYBER_KEYWORDS.length)],
+        ]);
         idx++;
-        if (idx > 20) clearInterval(interval);
-      }, 100);
+        if (idx > 14) clearInterval(interval);
+      }, 120);
       return () => clearInterval(interval);
     }, delay);
     return () => clearTimeout(timeout);
@@ -28,10 +41,10 @@ function MatrixColumn({ delay, left }: { delay: number; left: string }) {
 
   return (
     <div
-      className="absolute top-0 text-xs leading-tight opacity-20 whitespace-pre"
-      style={{ left, color: "hsl(120 100% 50%)", fontFamily: "var(--font-body)" }}
+      className="absolute top-0 text-[10px] leading-relaxed opacity-15 whitespace-pre font-mono"
+      style={{ left, color: "hsl(var(--primary))" }}
     >
-      {text}
+      {lines.join("\n")}
     </div>
   );
 }
