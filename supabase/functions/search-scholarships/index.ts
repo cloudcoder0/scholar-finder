@@ -111,9 +111,9 @@ For each scholarship, you MUST verify:
 - The source URL is a real website
 - The scholarship is relevant to the student's profile and field of study`;
 
-    const userPrompt = `Find 8-12 scholarships for a student with a ${gpa.toFixed(1)} GPA in ${state}.${profileContext}
+    const userPrompt = `Find 15-20 scholarships for a student with a ${gpa.toFixed(1)} GPA in ${state}.${profileContext}
 
-Include both national scholarships and ${state}-specific opportunities. Focus on lesser-known sources relevant to the student's profile. Return ONLY scholarships with deadlines after ${today}.`;
+Include both national scholarships and ${state}-specific opportunities. Focus on lesser-known sources relevant to the student's profile. Return ONLY scholarships with deadlines after ${today}. Try to find as many as possible — aim for at least 15.`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
