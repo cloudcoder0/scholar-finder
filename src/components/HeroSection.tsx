@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Shield, Terminal, Lock, Cpu } from "lucide-react";
-import { useEffect, useState } from "react";
 
 const features = [
   { icon: Terminal, text: "AI-powered real-time discovery" },
@@ -9,7 +8,9 @@ const features = [
   { icon: Shield, text: "Matched to your full profile" },
 ];
 
-
+export default function HeroSection() {
+  return (
+    <section className="relative overflow-hidden py-24 md:py-32 border-b border-border" style={{ background: "hsl(120 20% 6%)" }}>
       <div className="container relative mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
