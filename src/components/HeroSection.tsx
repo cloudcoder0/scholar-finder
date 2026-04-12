@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { Shield, Terminal, Lock, Cpu } from "lucide-react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { Shield, Terminal, Lock, Cpu, Users, Search, Database } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 const features = [
   { icon: Terminal, text: "AI-powered real-time discovery" },
@@ -7,6 +8,29 @@ const features = [
   { icon: Lock, text: "Expired entries auto-purged" },
   { icon: Shield, text: "Matched to your full profile" },
 ];
+
+const stats = [
+  { icon: Database, value: 12847, label: "Scholarships indexed", prefix: "" },
+  { icon: Users, value: 3291, label: "Students matched", prefix: "" },
+  { icon: Search, value: 847, label: "Sources scanned", prefix: "" },
+];
+
+function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const controls = animate(0, value, {
+      duration,
+      ease: "easeOut",
+      onUpdate: (v) => {
+        if (ref.current) ref.current.textContent = Math.floor(v).toLocaleString();
+      },
+    });
+    return () => controls.stop();
+  }, [value, duration]);
+
+  return <span ref={ref}>0</span>;
+}
 
 export default function HeroSection() {
   return (
@@ -34,8 +58,30 @@ export default function HeroSection() {
           </p>
         </motion.div>
 
+        {/* Social proof counters */}
         <motion.div
-          className="mt-12 flex flex-wrap items-center justify-center gap-6"
+          className="mt-10 flex flex-wrap items-center justify-center gap-8 md:gap-12"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          {stats.map((stat) => (
+            <div key={stat.label} className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-2">
+                <stat.icon className="h-4 w-4 text-primary" />
+                <span className="font-display text-xl font-bold text-foreground text-glow">
+                  {stat.prefix}<AnimatedCounter value={stat.value} />
+                </span>
+              </div>
+              <span className="text-[10px] text-muted-foreground font-display uppercase tracking-wider">
+                {stat.label}
+              </span>
+            </div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          className="mt-10 flex flex-wrap items-center justify-center gap-6"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
