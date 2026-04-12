@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import ChatOnboarding from "@/components/ChatOnboarding";
 import ResultsSection from "@/components/ResultsSection";
 import ScanningIndicator from "@/components/ScanningIndicator";
+import PremiumUpsell from "@/components/PremiumUpsell";
 import { findScholarships, calculateMatchScore, type Scholarship, type SearchProfile } from "@/data/scholarships";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -93,6 +94,8 @@ export default function Index() {
           <ResultsSection results={results} gpa={searchGpa} state={searchState} />
         )}
       </div>
+
+      {results && results.length > 0 && <PremiumUpsell />}
 
       <footer className="border-t border-border py-8 text-center">
         <p className="text-xs text-muted-foreground font-display">
