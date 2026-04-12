@@ -1,18 +1,14 @@
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import { Shield, Terminal, Lock, Cpu, Users, Search, Database } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { motion, animate } from "framer-motion";
+import { Shield, Terminal, Lock, Cpu, Database, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { scholarships } from "@/data/scholarships";
 
 const features = [
   { icon: Terminal, text: "AI-powered real-time discovery" },
   { icon: Cpu, text: "Sources beyond mainstream databases" },
   { icon: Lock, text: "Expired entries auto-purged" },
   { icon: Shield, text: "Matched to your full profile" },
-];
-
-const stats = [
-  { icon: Database, value: 12847, label: "Scholarships indexed", prefix: "" },
-  { icon: Users, value: 3291, label: "Students matched", prefix: "" },
-  { icon: Search, value: 847, label: "Sources scanned", prefix: "" },
 ];
 
 function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: number }) {
@@ -33,6 +29,27 @@ function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: nu
 }
 
 export default function HeroSection() {
+  const [dbCount, setDbCount] = useState(0);
+
+  useEffect(() => {
+    supabase
+      .from("cached_scholarships")
+      .select("id", { count: "exact", head: true })
+      .then(({ count }) => {
+        setDbCount(count ?? 0);
+      });
+  }, []);
+
+  const seedCount = scholarships.length;
+  const totalScholarships = seedCount + dbCount;
+
+  const seedSources = new Set(scholarships.map((s) => s.sourceCategory)).size;
+
+  const stats = [
+    { icon: Database, value: totalScholarships, label: "Scholarships indexed" },
+    { icon: Search, value: seedSources + 2, label: "Source categories" },
+  ];
+
   return (
     <section className="relative overflow-hidden py-24 md:py-32 border-b border-border" style={{ background: "hsl(120 20% 6%)" }}>
       <div className="container relative mx-auto px-6 text-center">
@@ -58,7 +75,7 @@ export default function HeroSection() {
           </p>
         </motion.div>
 
-        {/* Social proof counters */}
+        {/* Live stats */}
         <motion.div
           className="mt-10 flex flex-wrap items-center justify-center gap-8 md:gap-12"
           initial={{ opacity: 0, y: 16 }}
@@ -70,7 +87,7 @@ export default function HeroSection() {
               <div className="flex items-center gap-2">
                 <stat.icon className="h-4 w-4 text-primary" />
                 <span className="font-display text-xl font-bold text-foreground text-glow">
-                  {stat.prefix}<AnimatedCounter value={stat.value} />
+                  <AnimatedCounter value={stat.value} />
                 </span>
               </div>
               <span className="text-[10px] text-muted-foreground font-display uppercase tracking-wider">
