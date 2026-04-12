@@ -40,11 +40,10 @@ export default function HeroSection() {
       });
   }, []);
 
-  const seedCount = SCHOLARSHIPS.length;
+  const seedCount = scholarships.length;
   const totalScholarships = seedCount + dbCount;
 
-  // Unique source categories from both seed + db
-  const seedSources = new Set(SCHOLARSHIPS.map((s) => s.sourceCategory)).size;
+  const seedSources = new Set(scholarships.map((s) => s.sourceCategory)).size;
 
   const stats = [
     { icon: Database, value: totalScholarships, label: "Scholarships indexed" },
