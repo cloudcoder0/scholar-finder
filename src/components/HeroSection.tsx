@@ -2,7 +2,7 @@ import { motion, animate } from "framer-motion";
 import { Shield, Terminal, Lock, Cpu, Database, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { SCHOLARSHIPS } from "@/data/scholarships";
+import { scholarships } from "@/data/scholarships";
 
 const features = [
   { icon: Terminal, text: "AI-powered real-time discovery" },
