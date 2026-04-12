@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ExternalLink, ShieldCheck, DollarSign, Calendar, Sparkles } from "lucide-react";
 import type { Scholarship, SourceCategory } from "@/data/scholarships";
 import { SOURCE_LABELS } from "@/data/scholarships";
+import { Progress } from "@/components/ui/progress";
 
 const categoryClass: Record<SourceCategory, string> = {
   government: "badge-gov",
@@ -11,6 +12,20 @@ const categoryClass: Record<SourceCategory, string> = {
   organization: "badge-org",
 };
 
+function getMatchColor(score: number) {
+  if (score >= 80) return "text-green-400";
+  if (score >= 60) return "text-yellow-400";
+  if (score >= 40) return "text-orange-400";
+  return "text-red-400";
+}
+
+function getProgressColor(score: number) {
+  if (score >= 80) return "bg-green-500";
+  if (score >= 60) return "bg-yellow-500";
+  if (score >= 40) return "bg-orange-500";
+  return "bg-red-500";
+}
+
 export default function ScholarshipCard({
   scholarship,
   index,
@@ -19,6 +34,7 @@ export default function ScholarshipCard({
   index: number;
 }) {
   const s = scholarship;
+  const matchScore = s.matchScore ?? 0;
 
   return (
     <motion.article
@@ -44,6 +60,23 @@ export default function ScholarshipCard({
             </span>
           )}
         </div>
+      </div>
+
+      {/* Match Score Bar */}
+      <div className="mb-3 flex items-center gap-3">
+        <div className="flex-1">
+          <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+            <motion.div
+              className={`h-full rounded-full ${getProgressColor(matchScore)}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${matchScore}%` }}
+              transition={{ delay: index * 0.05 + 0.3, duration: 0.6, ease: "easeOut" }}
+            />
+          </div>
+        </div>
+        <span className={`font-display text-sm font-bold ${getMatchColor(matchScore)}`}>
+          {matchScore}%
+        </span>
       </div>
 
       <p className="mb-4 text-xs leading-relaxed text-muted-foreground line-clamp-2">

@@ -4,7 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import ChatOnboarding from "@/components/ChatOnboarding";
 import ResultsSection from "@/components/ResultsSection";
 import ScanningIndicator from "@/components/ScanningIndicator";
-import { findScholarships, type Scholarship, type SearchProfile } from "@/data/scholarships";
+import { findScholarships, calculateMatchScore, type Scholarship, type SearchProfile } from "@/data/scholarships";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Index() {
@@ -40,6 +40,7 @@ export default function Index() {
         const aiScholarships: Scholarship[] = data.scholarships.map((s: Scholarship) => ({
           ...s,
           source: "ai" as const,
+          matchScore: calculateMatchScore(s, profile),
         }));
 
         setResults((prev) => {
@@ -48,7 +49,7 @@ export default function Index() {
           const newOnes = aiScholarships.filter(
             (s) => !existingNames.has(s.name.toLowerCase())
           );
-          return [...existing, ...newOnes];
+          return [...existing, ...newOnes].sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
         });
 
         if (data.scholarships.length > 0) {
